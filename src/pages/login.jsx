@@ -25,17 +25,19 @@ const Auth = () => {
       if (mode === 'LOGIN') {
         const res = await axios.post(`${API_URL}/login`, { email, password });
         localStorage.setItem('token', res.data.data.token);
-        setSuccessMsg("Authentication Successful. Secure Handshake Active.");
+        setSuccessMsg("Login successful.");
+        setTimeout(() => window.location.href = '/', 800);
       } else if (mode === 'REGISTER') {
         const res = await axios.post(`${API_URL}/register`, { name, email, password });
         localStorage.setItem('token', res.data.data.token);
-        setSuccessMsg("Registration Complete. Welcome to IoT Dashboard.");
+        setSuccessMsg("Registration successful.");
+        setTimeout(() => window.location.href = '/', 800);
       } else if (mode === 'FORGOT_PASSWORD') {
         const res = await axios.post(`${API_URL}/forgot-password`, { email });
-        setSuccessMsg(res.data.message || "Reset link dispatched.");
+        setSuccessMsg(res.data.message || "Email sent.");
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'A strict network logic error occurred.');
+      setError(err.response?.data?.message || 'Network error occurred.');
     } finally {
       setIsLoading(false);
     }
@@ -64,13 +66,13 @@ const Auth = () => {
 
         <h2 className="login-title">
           {mode === 'LOGIN' && "Sign in to Dashboard"}
-          {mode === 'REGISTER' && "Initialize User Account"}
-          {mode === 'FORGOT_PASSWORD' && "Initialize Password Recovery"}
+          {mode === 'REGISTER' && "Create Account"}
+          {mode === 'FORGOT_PASSWORD' && "Reset Password"}
         </h2>
         <p className="login-subtitle">
-          {mode === 'LOGIN' && "Enter your active credentials to securely monitor infrastructure."}
-          {mode === 'REGISTER' && "Register dynamically to securely monitor internal edge devices."}
-          {mode === 'FORGOT_PASSWORD' && "Enter your active email to natively receive a secure tracking reset link."}
+          {mode === 'LOGIN' && "Sign in below to access reality dashboard."}
+          {mode === 'REGISTER' && "Create an account to access the dashboard."}
+          {mode === 'FORGOT_PASSWORD' && "Enter your email to receive a reset link."}
         </p>
 
         {error && <div className="alert error-alert">{error}</div>}
@@ -79,7 +81,7 @@ const Auth = () => {
         <form onSubmit={handleSubmit} className="login-form">
           {mode === 'REGISTER' && (
             <div className="input-group">
-              <label htmlFor="name">System Operator Full Name</label>
+              <label htmlFor="name">Full Name</label>
               <input
                 type="text"
                 id="name"
@@ -92,7 +94,7 @@ const Auth = () => {
           )}
 
           <div className="input-group">
-            <label htmlFor="email">Operator Work Email</label>
+            <label htmlFor="email">Email</label>
             <input
               type="email"
               id="email"
@@ -106,7 +108,7 @@ const Auth = () => {
           {mode !== 'FORGOT_PASSWORD' && (
             <div className="input-group">
               <div className="password-header" style={{display: 'flex', justifyContent: 'space-between', alignItems: 'baseline'}}>
-                <label htmlFor="password">Administrator Password</label>
+                <label htmlFor="password">Password</label>
                 {mode === 'LOGIN' && (
                   <button 
                     type="button" 
@@ -137,9 +139,9 @@ const Auth = () => {
             {isLoading ? (
               <span className="spinner"></span>
             ) : (
-              mode === 'LOGIN' ? 'Execute Secure Login' :
-              mode === 'REGISTER' ? 'Register Account Profile' :
-              'Transmit Secure Reset Link'
+              mode === 'LOGIN' ? 'Login' :
+              mode === 'REGISTER' ? 'Register' :
+              'Reset Password'
             )}
           </button>
         </form>
@@ -147,13 +149,13 @@ const Auth = () => {
         <div className="register-prompt">
           {mode === 'LOGIN' ? (
             <p className="no-account-text">
-              Unrecognized Operator?{' '}
-              <button className="register-link" onClick={() => { setMode('REGISTER'); clearForm(); }}>Initialize Sign up</button>
+              Don't have an account?{' '}
+              <button className="register-link" onClick={() => { setMode('REGISTER'); clearForm(); }}>Sign up</button>
             </p>
           ) : (
             <p className="no-account-text">
-              Active Authorized Operator?{' '}
-              <button className="register-link" onClick={() => { setMode('LOGIN'); clearForm(); }}>Execute Log in</button>
+              Already have an account?{' '}
+              <button className="register-link" onClick={() => { setMode('LOGIN'); clearForm(); }}>Login</button>
             </p>
           )}
         </div>
