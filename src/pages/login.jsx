@@ -1,14 +1,19 @@
 import { useState } from 'react';
-import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import authApi from '../api/auth.api';
+import { useAuth } from '../context/useAuth';
 import './login.css';
 
 const Auth = () => {
-  const [mode, setMode] = useState('LOGIN'); // fro 'LOGIN', 'REGISTER', 'FORGOT_PASSWORD'
-  
+  const navigate = useNavigate();
+  // use the auth context so our role gets loaded right after we log in
+  const { login, register } = useAuth();
+  const [mode, setMode] = useState('LOGIN');
+
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  
+
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [successMsg, setSuccessMsg] = useState(null);
@@ -19,22 +24,18 @@ const Auth = () => {
     setError(null);
     setSuccessMsg(null);
 
-    const API_URL = 'http://localhost:5001/api/auth';
-
     try {
       if (mode === 'LOGIN') {
-        const res = await axios.post(`${API_URL}/login`, { email, password });
-        localStorage.setItem('token', res.data.data.token);
+        await login({ email, password });
         setSuccessMsg("Login successful.");
-        setTimeout(() => window.location.href = '/', 800);
+        setTimeout(() => navigate('/', { replace: true }), 500);
       } else if (mode === 'REGISTER') {
-        const res = await axios.post(`${API_URL}/register`, { name, email, password });
-        localStorage.setItem('token', res.data.data.token);
+        await register({ name, email, password });
         setSuccessMsg("Registration successful.");
-        setTimeout(() => window.location.href = '/', 800);
+        setTimeout(() => navigate('/', { replace: true }), 500);
       } else if (mode === 'FORGOT_PASSWORD') {
-        const res = await axios.post(`${API_URL}/forgot-password`, { email });
-        setSuccessMsg(res.data.message || "Email sent.");
+        const res = await authApi.forgotPassword({ email });
+        setSuccessMsg(res.message || "Email sent.");
       }
     } catch (err) {
       setError(err.response?.data?.message || 'Network error occurred.');
@@ -51,15 +52,24 @@ const Auth = () => {
 
   return (
     <div className="login-container">
-      <div className="login-box glass-card">
-        
-        <div className="logo-container">
-          <img 
-            src="/logo.svg" 
-            alt="IoT83 Logo" 
+      <div className="login-hero">
+        <div className="hero-content">
+          <h1>IoT Enterprise Dashboard</h1>
+          <p>Real-time monitoring and analytics for your connected infrastructure.</p>
+        </div>
+        <img src="/login-hero.png" alt="IoT Dashboard Visualization" className="hero-image" />
+      </div>
+
+      <div className="login-form-section">
+        <div className="login-box">
+
+          <div className="logo-container">
+          <img
+            src="/logo.svg"
+            alt="IoT83 Logo"
             className="logo"
             onError={(e) => {
-              e.target.style.display = 'none'; // Native render fallback
+              e.target.style.display = 'none';
             }}
           />
         </div>
@@ -87,7 +97,7 @@ const Auth = () => {
                 id="name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Aditya Jain"
+                placeholder="Jane Doe"
                 required
               />
             </div>
@@ -100,7 +110,7 @@ const Auth = () => {
               id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="aditya.jain@iot83.com"
+              placeholder="name@example.com"
               required
             />
           </div>
@@ -110,9 +120,9 @@ const Auth = () => {
               <div className="password-header" style={{display: 'flex', justifyContent: 'space-between', alignItems: 'baseline'}}>
                 <label htmlFor="password">Password</label>
                 {mode === 'LOGIN' && (
-                  <button 
-                    type="button" 
-                    className="forgot-password-link" 
+                  <button
+                    type="button"
+                    className="forgot-password-link"
                     onClick={() => { setMode('FORGOT_PASSWORD'); clearForm(); }}
                     style={{background: 'none', border: 'none', color: '#333', fontSize: '12px', cursor: 'pointer', textDecoration: 'underline'}}
                   >
@@ -131,8 +141,8 @@ const Auth = () => {
             </div>
           )}
 
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             className={`submit-button ${isLoading ? 'loading' : ''}`}
             disabled={isLoading}
           >
@@ -160,6 +170,7 @@ const Auth = () => {
           )}
         </div>
 
+        </div>
       </div>
     </div>
   );

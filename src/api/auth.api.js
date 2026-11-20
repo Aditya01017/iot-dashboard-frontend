@@ -30,6 +30,11 @@ const authApi = {
     return res.data;
   },
 
+  resetPassword: async ({ token, password }) => {
+    const res = await api.put(`/auth/reset-password/${encodeURIComponent(token)}`, { password });
+    return res.data;
+  },
+
   refresh: async () => {
     const refreshToken = localStorage.getItem('refreshToken');
     const res = await api.post('/auth/refresh', { refreshToken });
@@ -43,11 +48,21 @@ const authApi = {
     try {
 
       await api.post('/auth/logout', { refreshToken });
-    } catch {
-
+    } catch (error) {
+      console.warn('Logout request failed; local credentials were still cleared.', error);
     } finally {
       clearTokens();
     }
+  },
+
+  getMe: async () => {
+    const res = await api.get('/auth/me');
+    return res.data?.data;
+  },
+
+  updateMe: async ({ name }) => {
+    const res = await api.put('/auth/me', { name });
+    return res.data?.data;
   },
 };
 

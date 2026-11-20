@@ -1,8 +1,14 @@
 import AppRoutes from './routes/AppRoutes.jsx'
+import { AuthProvider } from './context/AuthContext'
+import { SocketProvider } from './context/SocketContext'
 
 function App() {
   return (
-    <AppRoutes />
+    <AuthProvider>
+      <SocketProvider>
+        <AppRoutes />
+      </SocketProvider>
+    </AuthProvider>
   )
 }
 
